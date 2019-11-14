@@ -9,24 +9,95 @@ function J=returnJ
 % Dr. Jon du Bois
 
 %--------------------------------------------------------------------------
-% DO NOT MOFIFY ABOVE THIS LINE!!!! YOUR CODE GOES BELOW THIS LINE.
+% DO NOT MODIFY ABOVE THIS LINE!!!! YOUR CODE GOES BELOW THIS LINE.
 %--------------------------------------------------------------------------     
 
-%% get moments of inertia for each frame
-% I is a 3x3x6 array of moments of inertia. Each 3x3 element contains the
-% moments in the form:
-%
-%  Ixx  Ixy  Ixz
-%  Iyx  Iyy  Iyz
-%  Izx  Izy  Izz   (note that Izx = Ixz and Ixy = Iyx) 
-%
-I = zeros(3,3,6);
+%% hard-coded parameters for the robot
+density = 0;
+lengths = [0.3  0.2 0.03 0.2  0.03 0.1];
+radii   = [0.02 NaN NaN  0.01 NaN  0.01];
+x_bars   = [0 -0.1 0 0 0 0];
+y_bars   = [-0.15 0 0 0.1 0 0];
+z_bars   = [0 0.01 0 0 0 -0.05];
 
-% links 1, 4, and 6 are cylinders
+%% get masses of each link
+masses = zeros(1, 6);
+
+% 1, 4, and 6 are cylinders
 for i = [1 4 6]
-    Izz = 0.5 * m(i) * r(i).^2;
+    masses(i) = pi * radii(i)^2 * lengths(i);
 end
 
-% links 2, 3, and 5 are cuboids
+% 2, 3, and 5 are cylinders
+for i = [2 3 5]
+    masses(i) = thicknesses(i)^2 * lengths(i);
+end
 
-J=zeros(4,4,6);                    % initialise pseudo inertia matrix array
+%% get moments of inertia for each frame
+% I is a 3x6 array of moments of inertia. Each 3x3 element contains the
+% moments in the form:
+%
+%  Ixx Iyy Izz   (note that Izx = Ixz = 0 and Ixy = Iyx = 0) 
+%
+I = zeros(3,6);
+
+% links 1, 4, and 6 are cylinders
+% need to remap axes because the frame alignment is not the same for each
+% cylinder
+[I(2,1),I(1,1),I(3,1)] = calculateCylinderI(lengths(1), radii(1), masses(1));
+[I(2,4),I(1,4),I(3,4)] = calculateCylinderI(lengths(4), radii(4), masses(4));
+[I(3,6),I(2,6),I(1,6)] = calculateCylinderI(lengths(6), radii(6), masses(6));
+% links 2, 3, and 5 are cuboids
+I(:,2) = 0;
+I(:,3) = 0;
+I(:,5) = 0;
+
+%% calculate J matrix for each link
+J=zeros(4,4,6);  
+
+for i = 1:6
+    % get moments of inertia for this link
+    Ixx = I(1,i); Iyy = I(2,i); Izz = I(3,i);
+    
+    % get axial offsets for this link
+    x_bar = x_bars(i);
+    y_bar = y_bars(i);
+    z_bar = z_bars(i);
+    
+    % calculate J matrix elements
+    J(1,1,i) = 0.5*(-Ixx+Iyy+Izz); % \
+    J(2,2,i) = 0.5*(Ixx-Iyy+Izz);  %  | inertia terms
+    J(3,3,i) = 0.5*(Ixx+Iyy-Izz);  % /
+    
+    % set final column of J matrix
+    J(:,4,i) = [x_bar; y_bar; z_bar; 1] * masses(i);
+    
+    % bottom row is the transpose of the final column
+    J(4,:,i) = J(:,4,i)';
+end
+
+end
+
+function [Ixx, Iyy, Izz] = calculateCylinderI(length, radius, mass)
+% calculates the moments of intertia of a cylinder given that the x axis is
+% aligned with the vertical axis and the axes are offset from the centre by
+% axialOffset
+I = zeros(3); % initialise empty matrix
+
+% each axis set is at the end of the cylinder
+offset = length / 2;
+
+% get Ixx = 1/2 m r^2
+Ixx = 0.5 * mass * radius^2;
+
+% get Iyy = Iyy = 1/12 m (3r^2 + h^2)
+Iyy = (1/12) * mass * (3 * r^2 + length^2);
+
+% account for offset in axis alignment using parallel axis theorem
+Iyy = Iyy + ( mass * offset^2 );
+Izz = Iyy;
+end
+
+function [Ixx, Iyy, Izz] = calculateCuboidI(x,y,z,xbar,ybar,zbar)
+pass
+end
