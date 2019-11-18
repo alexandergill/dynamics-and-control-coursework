@@ -30,7 +30,7 @@ for i = [1 4 6]
     masses(i) = pi * radii(i)^2 * lengths(i) * density;
 end
 
-% 2, 3, and 5 are cylinders
+% 2, 3, and 5 are cuboids
 for i = [2 3 5]
     masses(i) = depths(i) * widths(i) * lengths(i) * density;
 end
@@ -58,7 +58,7 @@ for i = [2 3 5]
     x = lengths(i); y = widths(i); z = depths(i);
     xbar = x_bars(i); ybar = y_bars(i); zbar = z_bars(i);
     % get moments of inertia
-    I(:,i) = calculateCuboidI(x,y,z,xbar,ybar,zbar,masses(i));
+    [I(1,i),I(2,i),I(3,i)] = calculateCuboidI(x,y,z,xbar,ybar,zbar,masses(i));
 end
 
 %% calculate J matrix for each link
