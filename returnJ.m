@@ -14,13 +14,13 @@ function J=returnJ
 
 %% hard-coded parameters for the robot
 density = 7850;
-lengths = [0.3  0.2  0.03 0.2  0.03 0.1]; % x dimensions
-widths  = [NaN  0.03 0.03 NaN  0.03 NaN]; % y dimensions
-depths  = [NaN  0.01 0.03 NaN  0.03 NaN]; % z dimensions
-radii   = [0.02 NaN  NaN  0.01 NaN  0.01];
-x_bars   = [0 -0.1 0 0 0 0];
-y_bars   = [-0.15 0 0 0.1 0 0];
-z_bars   = [0 0.01 0 0 0 -0.05];
+lengths = [0.3   0.2  0.03 0.2  0.03 0.1]; % x dimensions
+widths  = [NaN   0.03 0.03 NaN  0.03 NaN]; % y dimensions
+depths  = [NaN   0.01 0.03 NaN  0.03 NaN]; % z dimensions
+radii   = [0.02  NaN  NaN  0.01 NaN  0.01];
+x_bars  = [0    -0.1  0    0    0    0];
+y_bars  = [-0.15 0    0    0.1  0    0];
+z_bars  = [0     0    0    0    0   -0.05];
 
 %% get masses of each link
 masses = zeros(1, 6);
@@ -69,9 +69,9 @@ for i = 1:6
     Ixx = I(1,i); Iyy = I(2,i); Izz = I(3,i);
     
     % get axial offsets for this link
-    x_bar = x_bars(i);
-    y_bar = y_bars(i);
-    z_bar = z_bars(i);
+    xbar = x_bars(i);
+    ybar = y_bars(i);
+    zbar = z_bars(i);
     
     % calculate J matrix elements
     J(1,1,i) = 0.5*(-Ixx+Iyy+Izz); % \
@@ -79,7 +79,7 @@ for i = 1:6
     J(3,3,i) = 0.5*(Ixx+Iyy-Izz);  % /
     
     % set final column of J matrix
-    J(:,4,i) = [x_bar; y_bar; z_bar; 1] * masses(i);
+    J(:,4,i) = [xbar; ybar; zbar; 1] * masses(i);
     
     % bottom row is the transpose of the final column
     J(4,:,i) = J(:,4,i)';
