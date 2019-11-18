@@ -13,9 +13,11 @@ function J=returnJ
 %--------------------------------------------------------------------------     
 
 %% hard-coded parameters for the robot
-density = 0;
-lengths = [0.3  0.2 0.03 0.2  0.03 0.1];
-radii   = [0.02 NaN NaN  0.01 NaN  0.01];
+density = 7850;
+lengths = [0.3  0.2  0.03 0.2  0.03 0.1]; % x dimensions
+widths  = [NaN  0.03 0.03 NaN  0.03 NaN]; % y dimensions
+depths  = [NaN  0.01 0.03 NaN  0.03 NaN]; % z dimensions
+radii   = [0.02 NaN  NaN  0.01 NaN  0.01];
 x_bars   = [0 -0.1 0 0 0 0];
 y_bars   = [-0.15 0 0 0.1 0 0];
 z_bars   = [0 0.01 0 0 0 -0.05];
@@ -25,12 +27,12 @@ masses = zeros(1, 6);
 
 % 1, 4, and 6 are cylinders
 for i = [1 4 6]
-    masses(i) = pi * radii(i)^2 * lengths(i);
+    masses(i) = pi * radii(i)^2 * lengths(i) * density;
 end
 
 % 2, 3, and 5 are cylinders
 for i = [2 3 5]
-    masses(i) = thicknesses(i)^2 * lengths(i);
+    masses(i) = depths(i) * widths(i) * lengths(i) * density;
 end
 
 %% get moments of inertia for each frame
@@ -47,10 +49,17 @@ I = zeros(3,6);
 [I(2,1),I(1,1),I(3,1)] = calculateCylinderI(lengths(1), radii(1), masses(1));
 [I(2,4),I(1,4),I(3,4)] = calculateCylinderI(lengths(4), radii(4), masses(4));
 [I(3,6),I(2,6),I(1,6)] = calculateCylinderI(lengths(6), radii(6), masses(6));
+
 % links 2, 3, and 5 are cuboids
-I(:,2) = 0;
-I(:,3) = 0;
-I(:,5) = 0;
+% no need to remap axes because x axis is along the link for all three
+% cuboids
+for i = [2 3 5]
+    % get dimensions of this cuboid
+    x = lengths(i); y = widths(i); z = depths(i);
+    xbar = x_bars(i); ybar = y_bars(i); zbar = z_bars(i);
+    % get moments of inertia
+    I(:,i) = calculateCuboidI(x,y,z,xbar,ybar,zbar,masses(i));
+end
 
 %% calculate J matrix for each link
 J=zeros(4,4,6);  
@@ -82,7 +91,6 @@ function [Ixx, Iyy, Izz] = calculateCylinderI(length, radius, mass)
 % calculates the moments of intertia of a cylinder given that the x axis is
 % aligned with the vertical axis and the axes are offset from the centre by
 % axialOffset
-I = zeros(3); % initialise empty matrix
 
 % each axis set is at the end of the cylinder
 offset = length / 2;
@@ -91,13 +99,16 @@ offset = length / 2;
 Ixx = 0.5 * mass * radius^2;
 
 % get Iyy = Iyy = 1/12 m (3r^2 + h^2)
-Iyy = (1/12) * mass * (3 * r^2 + length^2);
+Iyy = (1/12) * mass * (3 * radius^2 + length^2);
 
 % account for offset in axis alignment using parallel axis theorem
 Iyy = Iyy + ( mass * offset^2 );
 Izz = Iyy;
 end
 
-function [Ixx, Iyy, Izz] = calculateCuboidI(x,y,z,xbar,ybar,zbar)
-pass
+function [Ixx, Iyy, Izz] = calculateCuboidI(x,y,z,xbar,ybar,zbar,m)
+    % calculate each moment of inertia including the parallel axis theorem
+	Ixx = (1/12)*m*(y^2 + z^2) + m*(ybar^2 + zbar^2);
+    Iyy = (1/12)*m*(x^2 + z^2) + m*(xbar^2 + zbar^2);
+    Izz = (1/12)*m*(x^2 + y^2) + m*(xbar^2 + ybar^2);
 end
