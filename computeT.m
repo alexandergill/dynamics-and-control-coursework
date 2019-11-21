@@ -16,9 +16,9 @@ function T=computeT(q)
 
 %% hard-coded DH parameters
 % thetas are available in the parameter 'q'
-dValues = [0.3  0    0    0.2  0    0.1];
-aValues = [0    0.2  0    0    0    0  ];
-alphas  = [pi   0    pi  -pi   pi   0  ];
+dValues = [0.3  0    0     0.2   0     0.1];
+aValues = [0    0.2  0     0     0     0  ];
+alphas  = [pi/2 0    pi/2 -pi/2  pi/2  0  ];
 
 %% generate T matrices
 % initialise empty T
