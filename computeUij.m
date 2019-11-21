@@ -18,4 +18,32 @@ function U=computeUij(T,i,j)
 % DO NOT MOFIFY ABOVE THIS LINE!!!! YOUR CODE GOES BELOW THIS LINE.
 %--------------------------------------------------------------------------   
 
-U=zeros(4,4);
+if i < j
+    U = zeros(4);
+else
+    % initialise U to an identity matrix to allow its value to be assigned
+    % by multiplication
+    U = eye(4);
+    for index = 1:i
+        % if this term is the jth term, multiply by the derivative, otherwise
+        % multiply by the T matrix for this term
+        if index == j            
+            U = U * derivative(T(:,:,index));
+        else
+            U = U * T(:,:,index);
+        end
+    end
+end
+end
+
+function dTdq = derivative(T)
+% derivative returns the derivative with respect to q of the T matrix
+% this is calculated by multiplying a matrix 'mat' with the T matrix
+
+    % create matrix and compute derivative
+    mat = [0 -1  0  0;...
+           1  0  0  0;...
+           0  0  0  0;...
+           0  0  0  0];
+    dTdq = mat * T;
+end
