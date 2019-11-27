@@ -15,10 +15,25 @@ function G=computeG(T)
 % DO NOT MOFIFY ABOVE THIS LINE!!!! YOUR CODE GOES BELOW THIS LINE.
 %--------------------------------------------------------------------------
 
-% Date tested:    -/-/2018
-% Tested by:      Joe Bloggs
-% Test procedure: 
-% Results:        
+% Date tested:    27/11/2019
+% Tested by:      Alexander Gill
+%% Test procedure:
+% 1. Append the following line to the end of this file:
+%    G=[0;0;0;0;0;0];
+% 2. Run simulation using 'hold' trajectory
+% 3. Save the resulting graph
+% 4. Remove the above line from the end of this file
+% 5. Run the same simulation
+% 6. Compare the results
+%
+% The 'hold' trajectory was chosen because this tests the gravity
+% compensation in isolation, without any movement to confuse the results.
+%% Results:
+% When G was set to zeros in step 1, the robot oscillated
+% When G was set to the correct values in step 4, the robot did not
+% oscillate.
+%% Conclusion:
+% The gravity compensation is working as expected.
 
 %% hard-coded parameters for this robot
 density = 7850;
