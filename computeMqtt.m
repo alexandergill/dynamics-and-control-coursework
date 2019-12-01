@@ -18,9 +18,55 @@ function Mqtt=computeMqtt(J,T,qtt)
 % DO NOT MOFIFY ABOVE THIS LINE!!!! YOUR CODE GOES BELOW THIS LINE.
 %--------------------------------------------------------------------------
 
-% Date tested:    -/-/2018
-% Tested by:      Joe Bloggs
+% Date tested:    01/12/2019
+% Tested by:      Alexander Gill
 % Test procedure: 
-% Results:        
+% Compared error when Mqtt was zero vs when it was the output of this file.
+% The following trajectories were used:
+%
+%    trajectory        reason
+%  ----------------------------------------------------------------------
+%    spin 1            Mqtt only handles forces due to acceleration, and
+%                      this trajectory only has acceleration in one
+%                      direction, allowing debugging of this file in
+%                      isolation.
+%    
+%    spin 2            This trajectory only includes acceleration and
+%                      gravity compensation. G is known to work, so this
+%                      allows any problems to be attributed to this code.
+%
+%    hold              Check this code hasn't introduced new problems
+%
+% Results:
+% When Mqtt was zero, large oscillation was observed for both spin
+% trajectories, causing significant error. When Mqtt was the output of this
+% file, the oscillation was significantly reduced and approximately zero.
+% Some wobble was observed still in spin 2 but it was a lot less than
+% without this implementation. Hold still worked as before.
 
-Mqtt=zeros(6,1);
+%% create empty matrices
+% initialise empty output matrix
+Mqtt = zeros(6,1);
+
+% initialise empty NxN mass matrix
+Mnj  = zeros(6);
+
+%% fill mass matrix
+% loop over the robot's joints in 3D, because the mass matrix is 2D and
+% requires summation in the third dimension
+for n = 1:6
+    for j = 1:6
+        for i = 1:6
+            
+            % get transform derivatives
+            Uij = computeUij(T,i,j);
+            Uin = computeUij(T,i,n);
+            
+            % compute this element of the mass matrix
+            Mnj(n,j) = Mnj(n,j) + trace(Uij * J(:,:,i) * Uin');
+        end
+    end
+end
+
+%% multiply mass matrix by accelerations to get restorative force
+Mqtt = Mnj * qtt;
