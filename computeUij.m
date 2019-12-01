@@ -19,7 +19,7 @@ function U=computeUij(T,i,j)
 %--------------------------------------------------------------------------   
 
 if i < j
-    U = zeros(4);
+    U = zeros(4); % no impact from moving a link further from the base
 else
     % initialise U to an identity matrix to allow its value to be assigned
     % by multiplication
