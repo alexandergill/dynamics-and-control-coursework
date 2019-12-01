@@ -36,12 +36,14 @@ function G=computeG(T)
 % The gravity compensation is working as expected.
 
 %% hard-coded parameters for this robot
-density = 7850;
-radii   = [0.02 NaN NaN 0.01 NaN 0.01];
-lengths = [0.3 0.2 0.03 0.2 0.03 0.1];
-thicknesses  = [NaN 0.01 0.03 NaN 0.03 NaN];
-depths = [NaN 0.03 0.03 NaN 0.03 NaN];
-masses = zeros(1, 6);
+density =      7850;
+radii   =      [0.02 NaN  NaN  0.01 NaN  0.01];
+lengths =      [0.3  0.2  0.03 0.2  0.03 0.1 ];
+thicknesses  = [NaN  0.01 0.03 NaN  0.03 NaN ];
+depths =       [NaN  0.03 0.03 NaN  0.03 NaN ];
+
+%% calculate masses for this robot
+masses = zeros(1, 6); % initialise to zero
 % links 1, 4, and 6 are cylinders
 for i = [1 4 6]
     masses(i) = density * pi * radii(i).^2 * lengths(i);
@@ -51,6 +53,8 @@ for i = [2 3 5]
     masses(i) = density * lengths(i) * thicknesses(i) * depths(i);
 end
 
+%% r vectors
+% this matrix's rows are the r vector for each link
 r = [0    -0.15 0     1;...
      -0.1 0     0     1;...
      0    0     0     1;...
@@ -59,12 +63,15 @@ r = [0    -0.15 0     1;...
      0    0     -0.05 1];
 
 g = [0;0;-9.81;0];
+
 %% summation of gravity terms
+G=[0;0;0;0;0;0]; % initialise to zero
 
-G=[0;0;0;0;0;0];
-
+% loop over links
 for n = 1:6
+    % create summation for this link by looping over links
     for i = 1:6
+        % evaluate the equation terms for this link
         U = computeUij(T,i,n);
         mi = masses(i);
         ri = r(i,:)';
