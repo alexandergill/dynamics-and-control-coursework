@@ -31,7 +31,7 @@ function G=computeG(T)
 %% Results:
 % When G was set to zeros in step 1, the robot oscillated
 % When G was set to the correct values in step 4, the robot did not
-% oscillate.
+% oscillate, and the error was approximately zero.
 %% Conclusion:
 % The gravity compensation is working as expected.
 
@@ -62,6 +62,7 @@ r = [0    -0.15 0     1;...
      0    0     0     1;...
      0    0     -0.05 1];
 
+% gravity vector (9.81m/s/s downwards in z)
 g = [0;0;-9.81;0];
 
 %% summation of gravity terms

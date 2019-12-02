@@ -44,11 +44,7 @@ function Mqtt=computeMqtt(J,T,qtt)
 % Some wobble was observed still in spin 2 but it was a lot less than
 % without this implementation. Hold still worked as before.
 
-%% create empty matrices
-% initialise empty output matrix
-Mqtt = zeros(6,1);
-
-% initialise empty NxN mass matrix
+%% initialise empty NxN mass matrix
 Mnj  = zeros(6);
 
 %% fill mass matrix

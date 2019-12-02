@@ -62,7 +62,7 @@ for i = [2 3 5]
 end
 
 %% calculate J matrix for each link
-J=zeros(4,4,6);  
+J = zeros(4,4,6);  
 
 for i = 1:6
     % get moments of inertia for this link
